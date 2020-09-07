@@ -1,1 +1,1 @@
-# GANWOrk
+# GAN-Work
