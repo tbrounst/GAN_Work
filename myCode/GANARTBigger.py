@@ -19,10 +19,10 @@ data_path = 'startOfPath\\GANStuff\\WrapperFolder'
 error_file_path = 'startOfPath\\GANStuff\\error.csv'
 
 batch_size = 32
-resize_value = (120, 160)
+resize_value = (256, 256)
 
 num_test_samples = 4
-num_epochs = 500
+num_epochs = 5000
 num_rolls = 5
 
 # Create the discriminator
@@ -67,8 +67,16 @@ class DiscriminatorNet(torch.nn.Module):
             nn.BatchNorm2d(1024),
             nn.LeakyReLU(0.2, inplace=True)
         )
+        self.conv5 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=1024, out_channels=2048, kernel_size=kernel_s,
+                stride=stride_s, padding=(1, 1), bias=False
+            ),
+            nn.BatchNorm2d(2048),
+            nn.LeakyReLU(0.2, inplace=True)
+        )
         self.out = nn.Sequential(
-            nn.Linear(1024 * 7 * 10, 1),
+            nn.Linear(2048 * 8 * 8, 1),
             # nn.Linear(49152, 1),
             nn.Sigmoid()
         )
@@ -79,8 +87,9 @@ class DiscriminatorNet(torch.nn.Module):
         x = self.conv2(x)
         x = self.conv3(x)
         x = self.conv4(x)
+        x = self.conv5(x)
         # Flatten and apply sigmoid
-        x = x.view(-1, 1024 * 7 * 10)
+        x = x.view(-1, 2048 * 8 * 8)
         # x = x.view(-1, 49152)
         x = self.out(x)
         return x
@@ -91,8 +100,16 @@ class GeneratorNet(torch.nn.Module):
     def __init__(self):
         super(GeneratorNet, self).__init__()
 
-        self.linear = torch.nn.Linear(100, 1024 * 7 * 10)
+        self.linear = torch.nn.Linear(100, 2048 * 8 * 8)
 
+        self.conv0 = nn.Sequential(
+            nn.ConvTranspose2d(
+                in_channels=2048, out_channels=1024, kernel_size=4,
+                stride=2, padding=1, bias=False
+            ),
+            nn.BatchNorm2d(1024),
+            nn.ReLU(inplace=True)
+        )
         self.conv1 = nn.Sequential(
             nn.ConvTranspose2d(
                 in_channels=1024, out_channels=512, kernel_size=4,
@@ -111,7 +128,7 @@ class GeneratorNet(torch.nn.Module):
         )
         self.conv3 = nn.Sequential(
             nn.ConvTranspose2d(
-                in_channels=256, out_channels=128, kernel_size=(6, 4),
+                in_channels=256, out_channels=128, kernel_size=(4, 4),
                 stride=2, padding=1, bias=False
             ),
             nn.BatchNorm2d(128),
@@ -119,7 +136,7 @@ class GeneratorNet(torch.nn.Module):
         )
         self.conv4 = nn.Sequential(
             nn.ConvTranspose2d(
-                in_channels=128, out_channels=3, kernel_size=(8, 4),
+                in_channels=128, out_channels=3, kernel_size=(4, 4),
                 stride=2, padding=1, bias=False
             )
         )
@@ -128,8 +145,9 @@ class GeneratorNet(torch.nn.Module):
     def forward(self, x):
         # Project and reshape
         x = self.linear(x)
-        x = x.view(x.shape[0], 1024, 7, 10)
+        x = x.view(x.shape[0], 2048, 8, 8)
         # Convolutional layers
+        x = self.conv0(x)
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
@@ -141,7 +159,7 @@ class GeneratorNet(torch.nn.Module):
 # Create data set
 def createDataSet():
     compose = transforms.Compose(
-        [transforms.Resize(resize_value),
+         [transforms.Resize(resize_value),
          transforms.ToTensor(),
          transforms.Normalize((.5, .5, .5), (.5, .5, .5))
          ])
@@ -220,11 +238,11 @@ num_batches = len(data_loader)
 print("num batches: " + str(num_batches))
 
 discriminator = DiscriminatorNet()
-# discriminator.load_state_dict(torch.load('startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\Lands\\D_epoch_350'))
+discriminator.load_state_dict(torch.load('startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\LargeCreaturesVersion1\\D_epoch_499'))
 discriminator.to(device)
 
 generator = GeneratorNet()
-# generator.load_state_dict(torch.load('startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\Lands\\G_epoch_350'))
+generator.load_state_dict(torch.load('startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\LargeCreaturesVersion1\\G_epoch_499'))
 generator.to(device)
 
 # Create optimiziers
@@ -243,7 +261,7 @@ with open(error_file_path, 'w') as error_file:
     error_file.flush()
     # Do the run of the code
     start = time.time()
-    for epoch in range(0, num_epochs):
+    for epoch in range(500, num_epochs):
         print("Epoch: " + str(epoch))
         print("Elapsed Time: " + str(time.time() - start))
         start = time.time()
