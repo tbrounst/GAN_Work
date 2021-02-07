@@ -10,7 +10,7 @@ from ganart.utils import Logger
 
 print("Sanity check")
 device = torch.device('cuda:0')
-model_to_use = 'startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\LargeLandsVersion1\\G_epoch_900'
+model_to_use = 'C:\\Users\\Tom\\PycharmProjects\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\Lands\\G_epoch_100'
 
 def noise(size):
     n = Variable(torch.randn(size, 100))

@@ -15,15 +15,17 @@ from ganart.utils import Logger
 device = torch.device('cuda:0')
 # device = torch.device('cpu')
 
-data_path = 'startOfPath\\GANStuff\\WrapperFolder'
-error_file_path = 'startOfPath\\GANStuff\\error.csv'
+data_path = 'C:\\Users\\Tom\\Desktop\\GANStuff\\WrapperFolder'
+error_file_path = 'C:\\Users\\Tom\\Desktop\\GANStuff\\error.csv'
 
 batch_size = 32
 resize_value = (256, 256)
 
 num_test_samples = 4
-num_epochs = 5000
+num_epochs = 500
 num_rolls = 5
+
+#I stopped cleaning at 6235
 
 # Create the discriminator
 kernel_s = (4, 4)
@@ -238,11 +240,11 @@ num_batches = len(data_loader)
 print("num batches: " + str(num_batches))
 
 discriminator = DiscriminatorNet()
-discriminator.load_state_dict(torch.load('startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\LargeCreaturesVersion1\\D_epoch_499'))
+# discriminator.load_state_dict(torch.load('startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\LargeCreaturesVersion1\\D_epoch_499'))
 discriminator.to(device)
 
 generator = GeneratorNet()
-generator.load_state_dict(torch.load('startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\LargeCreaturesVersion1\\G_epoch_499'))
+# generator.load_state_dict(torch.load('startOfPath\\pythonProject\\myCode\\data\\models\\DConv-GConv-GANART\\LargeCreaturesVersion1\\G_epoch_499'))
 generator.to(device)
 
 # Create optimiziers
@@ -261,7 +263,7 @@ with open(error_file_path, 'w') as error_file:
     error_file.flush()
     # Do the run of the code
     start = time.time()
-    for epoch in range(500, num_epochs):
+    for epoch in range(0, num_epochs):
         print("Epoch: " + str(epoch))
         print("Elapsed Time: " + str(time.time() - start))
         start = time.time()
